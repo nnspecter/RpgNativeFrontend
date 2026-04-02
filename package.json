@@ -9,13 +9,27 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/rubik": "^0.4.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-vector-icons/material-design-icons": "^13.0.0",
+    "@tanstack/react-query": "^5.95.2",
+    "axios": "^1.14.0",
     "expo": "55.0.10-canary-20260327-0789fbc",
+    "expo-font": "55.0.5-canary-20260327-0789fbc",
     "expo-status-bar": "55.0.5-canary-20260327-0789fbc",
     "react": "19.2.0",
-    "react-native": "0.83.4"
+    "react-dom": "19.2.0",
+    "react-native": "0.83.4",
+    "react-native-infinite-wheel-picker": "^1.0.0",
+    "react-native-paper": "^5.15.0",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-web": "~0.21.0",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "@types/react-native": "^0.72.8",
+    "reactotron-react-native": "^5.1.18",
     "typescript": "~5.9.2"
   },
   "private": true
