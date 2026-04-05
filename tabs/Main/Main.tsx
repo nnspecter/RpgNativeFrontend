@@ -1,10 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 import Tasks from '../../components/Tasks/Tasks'
+import Metrics from '../../components/Metrics/Metrics'
+import Character from '../../components/Character/Character'
+import { useTimerStore } from '../../ZustandStore/timerStore'
+import Timer from '../../components/Timer/Timer'
 export default function Main(){
+  const {isTimer, setIsTimer} = useTimerStore();
   return (
-    <View>
-      <Tasks/>
+    <View >
+      {!isTimer ?
+      <View style={{paddingBottom: 30, gap: 10, paddingTop: 30, alignContent: "center", alignSelf: "center"}}>
+        <Character/>
+        <Tasks/>
+        <Metrics/>
+      </View>
+    :
+    <Timer/>}
     </View>
   )
 }

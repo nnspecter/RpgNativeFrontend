@@ -29,12 +29,18 @@ export default function NewTaskDialog() {
   const handleCreate = () => {
     if(!newTask.taskName || newTask.time <= 0) return;
     newTaskMutation.mutate(newTask);
+    setNewTask({
+      taskName: "",
+      description: "",
+      time: 0,
+      isComplete: false
+    })
     hideDialog();
   };
 
   return (
     <View>
-      <Button mode="contained" onPress={() => setVisible(true)} style={styles.createBtn}>
+      <Button mode="contained" onPress={() => setVisible(true)} style={styles.createBtn} disabled={newTaskMutation.isPending} loading={newTaskMutation.isPending}>
         Создать задачу
       </Button>
       
@@ -121,6 +127,8 @@ const styles = StyleSheet.create({
   },
   createBtn: {
     borderRadius: 10,
+    backgroundColor: '#6200ee',
+    borderColor: '#6200ee',
   },
   actions: {
     paddingHorizontal: 15,

@@ -1,4 +1,4 @@
-import {AuthData, Task, Tasks} from "./apiTypes"
+import {AuthData, Character, Metrics, Task, Tasks} from "./apiTypes"
 import { axiosApi } from "./axiosApi"
 
 
@@ -31,5 +31,17 @@ export const updTask = async (task: Task) => {
 }
 export const delTask = async (taskId: number) => {
     const res =  await axiosApi.delete(`/api/v1/tasks/del/${taskId}`);
+    return res.data
+}
+
+//Character
+export const getCharacter = async (): Promise<Character> => {
+    const res =  await axiosApi.get('/api/v1/character');
+    return res.data
+}
+
+//Metrics
+export const getMetrics = async (): Promise<Metrics> => {
+    const res =  await axiosApi.get('/api/v1/metrics');
     return res.data
 }

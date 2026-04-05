@@ -55,7 +55,7 @@ export default function Registration({ setter }: { setter: (type: "reg" | "login
                 left={<TextInput.Icon icon="account" />}
                 value={loginData.username}
                 error={!!formError}
-                onChangeText={name => setLoginData(prev => ({ ...prev, username: name }))}
+                onChangeText={name => setLoginData(prev => ({ ...prev, username: name.trim().toLowerCase() }))}
                 style={styles.input}
                 outlineStyle={styles.inputOutline}
               />
@@ -66,7 +66,7 @@ export default function Registration({ setter }: { setter: (type: "reg" | "login
                 left={<TextInput.Icon icon="lock" />}
                 value={loginData.password}
                 error={!!formError}
-                onChangeText={pass => setLoginData(prev => ({ ...prev, password: pass }))}
+                onChangeText={pass => setLoginData(prev => ({ ...prev, password: pass.trim() }))}
                 style={styles.input}
                 outlineStyle={styles.inputOutline}
               />

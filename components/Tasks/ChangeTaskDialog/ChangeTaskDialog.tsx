@@ -14,7 +14,7 @@ export default function ChangeTaskDialog({task}: {task: Task}) {
     taskName: task.taskName,
     description: task.description,
     time: task.time,
-    isComplete: false
+    isComplete: task.isComplete
   });
   
 

@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { getTokenSync, loadToken } from './api/secureStore';
 import AuthForms from './tabs/AuthForms/AuthForms';
 import Main from './tabs/Main/Main';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function App() {
   const {user} = useUserStore();
@@ -18,12 +19,14 @@ export default function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider>
         <View style={styles.container}>
           {!getTokenSync() ? <AuthForms/> : <Main/>}
 
         </View>
       </PaperProvider>
+      </GestureHandlerRootView>
     </QueryClientProvider>
   );
 }

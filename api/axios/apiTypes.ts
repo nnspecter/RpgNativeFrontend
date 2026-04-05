@@ -12,3 +12,14 @@ export type Task = {
 };
 
 export type Tasks = Task[];
+
+
+export type Character = {
+    name: string,
+    xp: number
+}
+
+export type Metrics = {
+    streak: number,
+    count: number,
+}
