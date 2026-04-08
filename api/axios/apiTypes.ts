@@ -4,7 +4,7 @@ export interface AuthData{
 };
 
 export type Task = {
-    taskId?: number;
+    taskId: number;
     taskName: string;
     description: string;
     time: number;
@@ -22,4 +22,17 @@ export type Character = {
 export type Metrics = {
     streak: number,
     count: number,
+}
+
+export type UpdateTask = {
+    taskId: number;
+    taskName?: string
+    description?: string;
+    time?: number;
+    isComplete?: boolean
+}
+export type NewTask = {
+    taskName: string
+    description: string;
+    time: number;
 }

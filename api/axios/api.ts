@@ -1,4 +1,4 @@
-import {AuthData, Character, Metrics, Task, Tasks} from "./apiTypes"
+import {AuthData, Character, Metrics, Task, Tasks, UpdateTask} from "./apiTypes"
 import { axiosApi } from "./axiosApi"
 
 
@@ -25,7 +25,7 @@ export const newTask = async (task: Task) => {
     return res.data
 }
 
-export const updTask = async (task: Task) => {
+export const updTask = async (task: UpdateTask) => {
     const res =  await axiosApi.put('/api/v1/tasks/upd', task);
     return res.data
 }

@@ -3,15 +3,16 @@ import { StyleSheet, View, KeyboardAvoidingView, Platform, TouchableWithoutFeedb
 import { Button, Text, TextInput, useTheme } from 'react-native-paper';
 import { AuthData } from '../../api/axios/apiTypes';
 import { useLogin } from '../../api/mutations/mutations';
+import i18n from '../../i18n';
+import { AppTheme } from '../../theme/paperTheme';
+
 
 const INPUT_WIDTH = 300;
 
 export default function Login({ setter }: { setter: (type: "reg" | "login") => void }) {
-  const theme = useTheme();
-  const [loginData, setLoginData] = useState<AuthData>({
-    username: "",
-    password: ""
-  });
+  const theme = useTheme<AppTheme>();
+
+  const [loginData, setLoginData] = useState<AuthData>({ username: "", password: "" });
   const [formError, setFormError] = useState<boolean>(false);
   const [secureText, setSecureText] = useState<boolean>(true);
 
@@ -19,15 +20,15 @@ export default function Login({ setter }: { setter: (type: "reg" | "login") => v
 
   const handleClick = () => {
     if (loginMutation.isPending) return;
-
     if (loginData.username.trim().length < 4 || loginData.password.trim().length < 4) {
       setFormError(true);
       return;
     }
-
     setFormError(false);
     loginMutation.mutate(loginData);
   };
+
+  const styles = makeStyles(theme);
 
   return (
     <KeyboardAvoidingView
@@ -38,21 +39,18 @@ export default function Login({ setter }: { setter: (type: "reg" | "login") => v
         <View style={styles.screen}>
           <View style={styles.card}>
 
-            {/* Иконка / аватар */}
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarIcon}>👤</Text>
             </View>
 
-            {/* Заголовок */}
-            <Text variant="headlineSmall" style={styles.title}>С возвращением</Text>
+            <Text variant="headlineSmall" style={styles.title}>{i18n.t('auth.login.title')}</Text>
             <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.outline }]}>
-              Войдите в свой аккаунт
+              {i18n.t('auth.login.subtitle')}
             </Text>
 
-            {/* Поля ввода */}
             <View style={styles.inputContainer}>
               <TextInput
-                label="Логин"
+                label={i18n.t('auth.fields.username')}
                 mode="outlined"
                 left={<TextInput.Icon icon="account" />}
                 value={loginData.username}
@@ -61,9 +59,8 @@ export default function Login({ setter }: { setter: (type: "reg" | "login") => v
                 style={styles.input}
                 outlineStyle={styles.inputOutline}
               />
-
               <TextInput
-                label="Пароль"
+                label={i18n.t('auth.fields.password')}
                 mode="outlined"
                 secureTextEntry={secureText}
                 left={<TextInput.Icon icon="lock" />}
@@ -81,38 +78,37 @@ export default function Login({ setter }: { setter: (type: "reg" | "login") => v
               />
             </View>
 
-            {/* Ошибка */}
             {(formError || loginMutation.error) && (
               <View style={styles.errorBox}>
                 <Text variant="bodySmall" style={styles.errorText}>
-                  {formError ? "Минимум 4 символа в полях" : "Неверный логин или пароль"}
+                  {formError ? i18n.t('auth.errors.minLength') : i18n.t('auth.errors.invalidCredentials')}
                 </Text>
               </View>
             )}
 
-            {/* Кнопка входа */}
             <Button
               mode="contained"
               onPress={handleClick}
               loading={loginMutation.isPending}
               disabled={loginMutation.isPending}
-              style={styles.button}
+              style={[styles.button, loginMutation.isPending && styles.buttonDisabled]}
               contentStyle={styles.buttonContent}
               labelStyle={styles.buttonLabel}
             >
-              Войти
+              {i18n.t('auth.login.button')}
             </Button>
 
-            {/* Ссылка на регистрацию */}
             <View style={styles.footer}>
-              <Text variant="bodyMedium" style={{ color: theme.colors.outline }}>Нет аккаунта?</Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.outline }}>
+                {i18n.t('auth.login.noAccount')}
+              </Text>
               <Button
                 mode="text"
                 compact
                 onPress={() => setter("reg")}
                 labelStyle={styles.link}
               >
-                Регистрация
+                {i18n.t('auth.login.register')}
               </Button>
             </View>
 
@@ -123,35 +119,26 @@ export default function Login({ setter }: { setter: (type: "reg" | "login") => v
   );
 }
 
-const INPUT_W = INPUT_WIDTH;
-
-const styles = StyleSheet.create({
+const makeStyles = (theme: AppTheme) => StyleSheet.create({
   screen: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+    backgroundColor: theme.colors.background,
   },
   card: {
-    maxWidth: INPUT_W + 48,   // поля + горизонтальный padding 24 с каждой стороны
+    maxWidth: INPUT_WIDTH + 48,
     paddingVertical: 36,
     paddingHorizontal: 24,
     borderRadius: 28,
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    // тень для iOS
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    // тень для Android
-    elevation: 4,
   },
   avatarCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#EEF0FF',
+    backgroundColor: theme.colors.avatarBackground,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -161,7 +148,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: '700',
-    color: '#1C1B1F',
+    color: theme.colors.onBackground,
     marginBottom: 4,
     textAlign: 'center',
   },
@@ -170,33 +157,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   inputContainer: {
-    width: INPUT_W,
+    width: INPUT_WIDTH,
     gap: 14,
     marginBottom: 4,
   },
   input: {
-    width: INPUT_W,
-    backgroundColor: '#FAFAFA',
+    width: INPUT_WIDTH,
+    backgroundColor: theme.colors.inputBackground,
   },
   inputOutline: {
     borderRadius: 12,
   },
   errorBox: {
-    width: INPUT_W,
+    width: INPUT_WIDTH,
     marginTop: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: '#FFEDEC',
+    backgroundColor: theme.colors.errorBackground,
   },
   errorText: {
-    color: '#BA1A1A',
+    color: theme.colors.errorText,
     textAlign: 'center',
   },
   button: {
-    width: INPUT_W,
+    width: INPUT_WIDTH,
     marginTop: 20,
     borderRadius: 12,
+    backgroundColor: theme.colors.primary,
+  },
+  buttonDisabled: {
+    backgroundColor: theme.colors.buttonDisabled,
   },
   buttonContent: {
     paddingVertical: 6,
@@ -214,5 +205,6 @@ const styles = StyleSheet.create({
   link: {
     fontWeight: '700',
     marginLeft: 2,
+    color: theme.colors.primary,
   },
 });

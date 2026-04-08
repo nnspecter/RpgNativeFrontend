@@ -1,54 +1,72 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, Dimensions, StatusBar } from 'react-native'
+import { View, StyleSheet, Dimensions, StatusBar } from 'react-native'
 import { AnimatedCircularProgress } from 'react-native-circular-progress'
-import { Button, IconButton, Surface, useTheme } from 'react-native-paper'
+import { Button, IconButton, Surface, Text, useTheme } from 'react-native-paper'
 import { useTimerStore } from '../../ZustandStore/timerStore'
+import { useUpdTask } from '../../api/mutations/mutations'
+import { useSnacbarControlStore } from '../../ZustandStore/snackbarControlStore'
+import { AppTheme } from '../../theme/paperTheme'
 
-const { width, height } = Dimensions.get('window')
+const { width } = Dimensions.get('window')
 
 export default function Timer() {
-  const { setIsTimer, selectedTask } = useTimerStore()
-  const theme = useTheme()
+  const { setIsTimer, selectedTask } = useTimerStore();
+  const { setVisible } = useSnacbarControlStore();
+  const CompleteMutation = useUpdTask();
 
-  const totalSeconds = (selectedTask?.minutes ?? 25) * 60
-  const [secondsLeft, setSecondsLeft] = useState(totalSeconds)
+  const theme = useTheme<AppTheme>();
+
+  const taskMinutes = selectedTask?.minutes ?? 25
+  const totalSeconds = taskMinutes * 60
+
+  const [secondsLeft, setSecondsLeft] = useState<number>(totalSeconds)
   const [isPaused, setIsPaused] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     if (!isPaused && secondsLeft > 0) {
       intervalRef.current = setInterval(() => {
-        setSecondsLeft(prev => {
+        setSecondsLeft((prev: number) => {
           if (prev <= 1) {
-            clearInterval(intervalRef.current)
-            setIsTimer(false)
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            selectedTask.taskId && CompleteMutation.mutate({ taskId: selectedTask.taskId, isComplete: true });
+            setIsTimer(false);
+            setVisible(true);
             return 0
           }
           return prev - 1
         })
       }, 1000)
     }
-    return () => clearInterval(intervalRef.current)
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [isPaused])
 
   const fill = Math.round(((totalSeconds - secondsLeft) / totalSeconds) * 100)
-
-  const minutes = Math.floor(secondsLeft / 60)
-  const seconds = secondsLeft % 60
-  const timeString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  const displayMinutes = Math.floor(secondsLeft / 60)
+  const displaySeconds = secondsLeft % 60
+  const timeString = `${String(displayMinutes).padStart(2, '0')}:${String(displaySeconds).padStart(2, '0')}`
+  const timeUnit = isPaused ? 'пауза' : 'осталось'
 
   const handlePause = () => {
     if (isPaused) {
       setIsPaused(false)
     } else {
-      clearInterval(intervalRef.current)
+      if (intervalRef.current) clearInterval(intervalRef.current)
       setIsPaused(true)
     }
   }
 
+  const styles = makeStyles(theme);
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.colors.background}
+      />
 
       <Text style={styles.taskName} numberOfLines={2}>
         {selectedTask?.taskName ?? 'Фокус-сессия'}
@@ -59,8 +77,8 @@ export default function Timer() {
           size={width * 0.75}
           width={10}
           fill={fill}
-          tintColor="#7c6ff7"
-          backgroundColor="#e0deff"
+          tintColor={theme.colors.primary}
+          backgroundColor={theme.colors.avatarBackground}
           rotation={0}
           lineCap="round"
           duration={800}
@@ -68,9 +86,7 @@ export default function Timer() {
           {() => (
             <View style={styles.innerCircle}>
               <Text style={styles.timeText}>{timeString}</Text>
-              <Text style={styles.labelText}>
-                {isPaused ? 'пауза' : 'осталось'}
-              </Text>
+              <Text style={styles.labelText}>{timeUnit}</Text>
             </View>
           )}
         </AnimatedCircularProgress>
@@ -80,8 +96,8 @@ export default function Timer() {
         <IconButton
           icon={isPaused ? 'play' : 'pause'}
           mode="contained"
-          containerColor="#7c6ff7"
-          iconColor="#ffffff"
+          containerColor={theme.colors.primary}
+          iconColor={theme.colors.onPrimary}
           size={32}
           style={styles.pauseIcon}
           onPress={handlePause}
@@ -97,8 +113,8 @@ export default function Timer() {
         style={styles.endButton}
         contentStyle={styles.endButtonContent}
         labelStyle={styles.endButtonLabel}
-        textColor="#e24b4a"
-        rippleColor="rgba(226,75,74,0.10)"
+        textColor={theme.colors.error}
+        rippleColor={theme.colors.errorBackground}
       >
         Завершить досрочно
       </Button>
@@ -106,17 +122,17 @@ export default function Timer() {
   )
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.background,
     alignItems: 'center',
     justifyContent: 'space-evenly',
     paddingHorizontal: 24,
     paddingVertical: 40,
   },
   taskName: {
-    color: '#3c3489',
+    color: theme.colors.primary,
     fontSize: 20,
     fontWeight: '500',
     textAlign: 'center',
@@ -132,14 +148,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   timeText: {
-    color: '#26215c',
+    color: theme.colors.onBackground,
     fontSize: 56,
     fontWeight: '300',
     letterSpacing: 4,
     fontVariant: ['tabular-nums'],
   },
   labelText: {
-    color: '#7f77dd',
+    color: theme.colors.primary,
     fontSize: 14,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
@@ -155,13 +171,13 @@ const styles = StyleSheet.create({
     height: 68,
   },
   pauseLabel: {
-    color: '#534ab7',
+    color: theme.colors.primary,
     fontSize: 13,
     marginTop: 8,
     letterSpacing: 0.5,
   },
   endButton: {
-    borderColor: '#e24b4a',
+    borderColor: theme.colors.error,
     borderWidth: 1,
     borderRadius: 8,
     width: width * 0.7,
@@ -173,4 +189,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.5,
   },
-})
+});

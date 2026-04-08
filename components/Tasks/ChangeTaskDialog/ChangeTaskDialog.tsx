@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, Dialog, IconButton, Portal, Text, TextInput, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Button, Dialog, IconButton, Portal, TextInput, useTheme } from 'react-native-paper';
 import { Task } from '../../../api/axios/apiTypes';
 import TimeSetter from '../../../features/TimeSetter/TimeSetter';
 import { useUpdTask } from '../../../api/mutations/mutations';
+import i18n from '../../../i18n';
+import { AppTheme } from '../../../theme/paperTheme';
 
-export default function ChangeTaskDialog({task}: {task: Task}) {
-  const theme = useTheme(); // Получаем тему для консистентности цветов
+export default function ChangeTaskDialog({ task }: { task: Task }) {
+  const theme = useTheme<AppTheme>();
   const [visible, setVisible] = useState(false);
   const newTaskMutation = useUpdTask();
   const [newTask, setNewTask] = useState<Task>({
@@ -14,24 +16,23 @@ export default function ChangeTaskDialog({task}: {task: Task}) {
     taskName: task.taskName,
     description: task.description,
     time: task.time,
-    isComplete: task.isComplete
+    isComplete: task.isComplete,
   });
-  
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(newTask.time)
   }, [newTask])
 
   const hideDialog = () => setVisible(false);
-  const setTime = (time: number) => {
-    setNewTask(prev => ({ ...prev, time: time }));
-  };
+  const setTime = (time: number) => setNewTask(prev => ({ ...prev, time }));
 
   const handleCreate = () => {
-    if(!newTask.taskName || newTask.time <= 0) return;
+    if (!newTask.taskName || newTask.time <= 0) return;
     newTaskMutation.mutate(newTask);
     hideDialog();
   };
+
+  const styles = makeStyles(theme);
 
   return (
     <View>
@@ -47,14 +48,14 @@ export default function ChangeTaskDialog({task}: {task: Task}) {
           style={styles.createBtn}
         />
       )}
-      
+
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog} style={styles.dialog}>
-          <Dialog.Title style={styles.dialogTitle}>Редактирование задачи</Dialog.Title>
-          
+          <Dialog.Title style={styles.dialogTitle}>{i18n.t('taskDialog.editTask.title')}</Dialog.Title>
+
           <Dialog.Content style={styles.container}>
             <TextInput
-              label="Название задачи"
+              label={i18n.t('taskDialog.fields.taskName')}
               mode="outlined"
               value={newTask.taskName}
               onChangeText={name => setNewTask(prev => ({ ...prev, taskName: name }))}
@@ -62,9 +63,9 @@ export default function ChangeTaskDialog({task}: {task: Task}) {
               outlineStyle={styles.inputOutline}
               activeOutlineColor={theme.colors.primary}
             />
-            
+
             <TextInput
-              label="Описание"
+              label={i18n.t('taskDialog.fields.description')}
               mode="outlined"
               multiline
               numberOfLines={3}
@@ -75,38 +76,40 @@ export default function ChangeTaskDialog({task}: {task: Task}) {
               activeOutlineColor={theme.colors.primary}
             />
 
-            {/* Контейнер для TimeSetter, чтобы он не слипался с инпутами */}
             <View style={styles.timeSetterWrapper}>
-               <TimeSetter time={newTask.time} setTime={setTime} />
+              <TimeSetter time={newTask.time} setTime={setTime} />
             </View>
           </Dialog.Content>
 
           <Dialog.Actions style={styles.actions}>
-            <Button onPress={hideDialog} textColor={theme.colors.secondary}>Отмена</Button>
-            <Button 
-              mode="contained" 
-              onPress={handleCreate} 
+            <Button onPress={hideDialog} textColor={theme.colors.secondary}>
+              {i18n.t('taskDialog.cancel')}
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleCreate}
               disabled={!newTask.taskName}
               style={styles.actionBtn}
             >
-              Сохранить
+              {i18n.t('taskDialog.editTask.submit')}
             </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
     </View>
   );
-};
+}
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: AppTheme) => StyleSheet.create({
   dialog: {
-    backgroundColor: '#f9f9f9', // Чуть серый фон диалога, чтобы белый TimeSetter выделялся
+    backgroundColor: theme.colors.card,
     borderRadius: 20,
   },
   dialogTitle: {
     textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
+    color: theme.colors.onSurface,
   },
   container: {
     alignItems: 'center',
@@ -114,11 +117,11 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    backgroundColor: '#fff', // Белый фон инпута
+    backgroundColor: theme.colors.inputBackground,
     fontSize: 15,
   },
   inputOutline: {
-    borderRadius: 12, // Скругляем как у TimeSetter
+    borderRadius: 12,
     borderWidth: 1,
   },
   textArea: {
@@ -146,5 +149,5 @@ const styles = StyleSheet.create({
   actionBtn: {
     paddingHorizontal: 10,
     borderRadius: 10,
-  }
+  },
 });

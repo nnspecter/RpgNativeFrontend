@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { AuthData, Task } from "../axios/apiTypes";
+import { AuthData, NewTask, Task, UpdateTask } from "../axios/apiTypes";
 import { delTask, newTask, startLogin, startRegistration, updTask } from "../axios/api";
 import { invalidateAll } from "./onSuccess";
 import { loadToken, saveToken } from "../secureStore";
@@ -36,14 +36,14 @@ export const useRegistration = () => {
 //Tasks 
 export const useNewTask = () => {
   return useMutation({
-    mutationFn: (data: Task) => newTask(data),
+    mutationFn: (data: NewTask) => newTask(data),
     onSuccess: ()=> {invalidateAll(); console.log("Таска создана")},
   });
 };
 //Tasks 
 export const useUpdTask = () => {
   return useMutation({
-    mutationFn: (data: Task) => updTask(data),
+    mutationFn: (data: UpdateTask) => updTask(data),
     onSuccess: ()=> {invalidateAll(); console.log("Таска изменена")},
   });
 };

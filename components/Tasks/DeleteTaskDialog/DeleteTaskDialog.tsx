@@ -3,18 +3,22 @@ import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Dialog, IconButton, Portal, Text, useTheme } from 'react-native-paper';
 import { Task } from '../../../api/axios/apiTypes';
 import { useDelTask } from '../../../api/mutations/mutations';
+import i18n from '../../../i18n';
+import { AppTheme } from '../../../theme/paperTheme';
 
 export default function DeleteTaskDialog({ task }: { task: Task }) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const [visible, setVisible] = useState(false);
   const delTaskMutation = useDelTask();
 
   const hideDialog = () => setVisible(false);
 
   const handleDelete = () => {
-    if(task.taskId) delTaskMutation.mutate(task.taskId)
+    if (task.taskId) delTaskMutation.mutate(task.taskId);
     hideDialog();
   };
+
+  const styles = makeStyles(theme);
 
   return (
     <View>
@@ -34,15 +38,17 @@ export default function DeleteTaskDialog({ task }: { task: Task }) {
 
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog} style={styles.dialog}>
-          <Dialog.Title style={styles.dialogTitle}>Удаление задачи</Dialog.Title>
+          <Dialog.Title style={styles.dialogTitle}>{i18n.t('taskDialog.deleteTask.title')}</Dialog.Title>
 
           <Dialog.Content style={styles.content}>
-            <Text>{`Вы точно хотите удалить задачу "${task.taskName}"?`}</Text>
+            <Text style={{ color: theme.colors.onSurface }}>
+              {i18n.t('taskDialog.deleteTask.confirm', { name: task.taskName })}
+            </Text>
           </Dialog.Content>
 
           <Dialog.Actions style={styles.actions}>
             <Button onPress={hideDialog} textColor={theme.colors.secondary}>
-              Отмена
+              {i18n.t('taskDialog.cancel')}
             </Button>
             <Button
               mode="contained"
@@ -50,7 +56,7 @@ export default function DeleteTaskDialog({ task }: { task: Task }) {
               buttonColor={theme.colors.error}
               style={styles.actionBtn}
             >
-              Удалить
+              {i18n.t('taskDialog.deleteTask.submit')}
             </Button>
           </Dialog.Actions>
         </Dialog>
@@ -59,15 +65,16 @@ export default function DeleteTaskDialog({ task }: { task: Task }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: AppTheme) => StyleSheet.create({
   dialog: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: theme.colors.card,
     borderRadius: 20,
   },
   dialogTitle: {
     textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
+    color: theme.colors.onSurface,
   },
   content: {
     alignItems: 'center',

@@ -1,28 +1,35 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, useColorScheme } from 'react-native'
+import { useTheme } from 'react-native-paper'
 import { useMetrics } from '../../api/queries/queries'
 import OneMetric from './OneMetric/OneMetric'
+import i18n from '../../i18n'
+import { AppTheme } from '../../theme/paperTheme'
 
-const COLORS = {
+const getColors = (isDark: boolean) => ({
   streak: {
-    bg: '#EEEDFE',
-    number: '#3C3489',
-    label: '#534AB7',
+    bg: isDark ? '#2A2660' : '#EEEDFE',
+    number: isDark ? '#B0AAFF' : '#3C3489',
+    label: isDark ? '#9B94F5' : '#534AB7',
   },
   done: {
-    bg: '#E1F5EE',
-    number: '#085041',
-    label: '#0F6E56',
+    bg: isDark ? '#0D2E27' : '#E1F5EE',
+    number: isDark ? '#5ECBA8' : '#085041',
+    label: isDark ? '#3DB890' : '#0F6E56',
   },
-}
+})
 
 export default function Metrics() {
-  const { data, isPending } = useMetrics()
+  const { data } = useMetrics()
+  const theme = useTheme<AppTheme>()
+  const colorScheme = useColorScheme()
+  const isDark = theme.dark ?? colorScheme === 'dark'
+  const COLORS = getColors(isDark)
 
   return (
     <View style={styles.container}>
-      <OneMetric metric={data?.streak ?? 0} str="Стрик" color={COLORS.streak} />
-      <OneMetric metric={data?.count ?? 0} str="Выполнено" color={COLORS.done} />
+      <OneMetric metric={data?.streak ?? 0} str={i18n.t('metrics.streak')} color={COLORS.streak} />
+      <OneMetric metric={data?.count ?? 0} str={i18n.t('metrics.done')} color={COLORS.done} />
     </View>
   )
 }
@@ -32,5 +39,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    gap: 10,
   },
 })

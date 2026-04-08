@@ -1,8 +1,10 @@
 import { create } from "zustand";
 
 type SelectedTask = {
+    taskId: number | null;
     taskName: string;
     minutes: number;
+
 };
 
 type TimerStore = {
@@ -10,16 +12,16 @@ type TimerStore = {
     setIsTimer: (value: boolean) => void;
 
     selectedTask: SelectedTask;
-    setSelectedTask: (taskName: string, minutes: number) => void;
+    setSelectedTask: (taskId: number | null, taskName: string, minutes: number) => void;
 };
 
 export const useTimerStore = create<TimerStore>((set) => ({
     isTimer: false,
     setIsTimer: (value) => set({ isTimer: value }),
 
-    selectedTask: { taskName: "", minutes: 0 },
-    setSelectedTask: (taskName, minutes) =>
+    selectedTask: {taskId: null, taskName: "", minutes: 0, },
+    setSelectedTask: (taskId, taskName, minutes) =>
         set({
-            selectedTask: { taskName, minutes },
+            selectedTask: {taskId, taskName, minutes },
         }),
 }));
