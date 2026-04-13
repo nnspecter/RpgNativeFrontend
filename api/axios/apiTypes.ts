@@ -3,6 +3,11 @@ export interface AuthData{
     password: string;
 };
 
+export interface AuthResponse{
+    accessToken: string; 
+    refreshToken: string;
+};
+
 export type Task = {
     taskId: number;
     taskName: string;

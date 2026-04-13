@@ -1,18 +1,19 @@
-import {AuthData, Character, Metrics, Task, Tasks, UpdateTask} from "./apiTypes"
+import {AuthData, AuthResponse, Character, Metrics, NewTask, Task, Tasks, UpdateTask} from "./apiTypes"
 import { axiosApi } from "./axiosApi"
 
 
 
 //Логин
-export const startLogin = async (data: AuthData) => {
-    const res =  await axiosApi.post('/auth/login', data)
-    return res.data
-}
-//регистрация
-export const startRegistration = async (data: AuthData) => {
-    const res =  await axiosApi.post('/auth/register', data)
-    return res.data
-}
+export const startLogin = async (data: AuthData): Promise<AuthResponse> => {
+  const res = await axiosApi.post("/auth/login", data);
+  return res.data;
+};
+ 
+//Регистрация
+export const startRegistration = async (data: AuthData): Promise<AuthResponse> => {
+  const res = await axiosApi.post("/auth/register", data);
+  return res.data;
+};
 
 //Tasks 
 export const getTasks = async (): Promise<Tasks> => {
@@ -20,7 +21,7 @@ export const getTasks = async (): Promise<Tasks> => {
     return res.data
 }
 
-export const newTask = async (task: Task) => {
+export const newTask = async (task: NewTask) => {
     const res =  await axiosApi.post('/api/v1/tasks/new', task);
     return res.data
 }

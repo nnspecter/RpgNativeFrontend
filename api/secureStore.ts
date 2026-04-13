@@ -1,24 +1,44 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const TOKEN_KEY = 'jwt_token';
+const ACCESS_KEY = "access_token";
+const REFRESH_KEY = "refresh_token";
 
-let cachedToken: string | null = null;
+let cachedAccess: string | null = null;
+let cachedRefresh: string | null = null;
 
+// Вызывается один раз при старте приложения
 export const loadToken = async () => {
-  const token = await AsyncStorage.getItem(TOKEN_KEY);
-  cachedToken = token;
+  const [access, refresh] = await Promise.all([
+    AsyncStorage.getItem(ACCESS_KEY),
+    AsyncStorage.getItem(REFRESH_KEY),
+  ]);
+  cachedAccess = access;
+  cachedRefresh = refresh;
 };
 
-export const saveToken = async (token: string) => {
-  cachedToken = token;
-  await AsyncStorage.setItem(TOKEN_KEY, token);
+export const saveTokens = async (access: string, refresh?: string) => {
+  cachedAccess = access;
+  await AsyncStorage.setItem(ACCESS_KEY, access);
+
+  if (refresh) {
+    cachedRefresh = refresh;
+    await AsyncStorage.setItem(REFRESH_KEY, refresh);
+  }
 };
 
-export const getTokenSync = () => {
-  return cachedToken;
+export const getTokensSync = () => {
+  if (!cachedAccess) return null;
+  return {
+    access: cachedAccess,
+    refresh: cachedRefresh,
+  };
 };
 
-export const deleteToken = async () => {
-  cachedToken = null;
-  await AsyncStorage.removeItem(TOKEN_KEY);
+export const deleteTokens = async () => {
+  cachedAccess = null;
+  cachedRefresh = null;
+  await Promise.all([
+    AsyncStorage.removeItem(ACCESS_KEY),
+    AsyncStorage.removeItem(REFRESH_KEY),
+  ]);
 };
